@@ -33,6 +33,7 @@ namespace misis_mp3_pleer
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form_main));
             this.save_songs_btn = new System.Windows.Forms.Panel();
+            this.StatButton = new System.Windows.Forms.Button();
             this.delete_button = new System.Windows.Forms.Button();
             this.save_button = new System.Windows.Forms.Button();
             this.Chose_songs_btn = new System.Windows.Forms.Button();
@@ -72,6 +73,7 @@ namespace misis_mp3_pleer
             // save_songs_btn
             // 
             this.save_songs_btn.BackColor = System.Drawing.Color.LightBlue;
+            this.save_songs_btn.Controls.Add(this.StatButton);
             this.save_songs_btn.Controls.Add(this.delete_button);
             this.save_songs_btn.Controls.Add(this.save_button);
             this.save_songs_btn.Controls.Add(this.Chose_songs_btn);
@@ -87,7 +89,19 @@ namespace misis_mp3_pleer
             this.save_songs_btn.Name = "save_songs_btn";
             this.save_songs_btn.Size = new System.Drawing.Size(1139, 592);
             this.save_songs_btn.TabIndex = 0;
-            this.save_songs_btn.Paint += new System.Windows.Forms.PaintEventHandler(this.save_songs_btn_Paint);
+            // 
+            // StatButton
+            // 
+            this.StatButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.StatButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.StatButton.Font = new System.Drawing.Font("Montserrat ExtraBold", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.StatButton.Location = new System.Drawing.Point(13, 468);
+            this.StatButton.Name = "StatButton";
+            this.StatButton.Size = new System.Drawing.Size(329, 57);
+            this.StatButton.TabIndex = 10;
+            this.StatButton.Text = "Посмотреть статистику";
+            this.StatButton.UseVisualStyleBackColor = true;
+            this.StatButton.Click += new System.EventHandler(this.StatButton_Click);
             // 
             // delete_button
             // 
@@ -120,7 +134,7 @@ namespace misis_mp3_pleer
             this.Chose_songs_btn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.Chose_songs_btn.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.Chose_songs_btn.Font = new System.Drawing.Font("Montserrat ExtraBold", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Chose_songs_btn.Location = new System.Drawing.Point(12, 474);
+            this.Chose_songs_btn.Location = new System.Drawing.Point(13, 405);
             this.Chose_songs_btn.Name = "Chose_songs_btn";
             this.Chose_songs_btn.Size = new System.Drawing.Size(329, 57);
             this.Chose_songs_btn.TabIndex = 6;
@@ -249,7 +263,6 @@ namespace misis_mp3_pleer
             this.label_100.Size = new System.Drawing.Size(47, 24);
             this.label_100.TabIndex = 8;
             this.label_100.Text = "30%";
-            this.label_100.Click += new System.EventHandler(this.label_100_Click);
             // 
             // pause_play
             // 
@@ -297,7 +310,6 @@ namespace misis_mp3_pleer
             this.song_name_label.Size = new System.Drawing.Size(115, 18);
             this.song_name_label.TabIndex = 9;
             this.song_name_label.Text = "Сейчас играет:";
-            this.song_name_label.Click += new System.EventHandler(this.song_name_label_Click);
             // 
             // song_line
             // 
@@ -317,7 +329,7 @@ namespace misis_mp3_pleer
             this.playlist_list.ItemHeight = 24;
             this.playlist_list.Location = new System.Drawing.Point(12, 107);
             this.playlist_list.Name = "playlist_list";
-            this.playlist_list.Size = new System.Drawing.Size(329, 364);
+            this.playlist_list.Size = new System.Drawing.Size(329, 292);
             this.playlist_list.TabIndex = 1;
             this.playlist_list.SelectedIndexChanged += new System.EventHandler(this.playlist_list_SelectedIndexChanged);
             // 
@@ -373,7 +385,6 @@ namespace misis_mp3_pleer
             this.Text = "MP3.Pleer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_main_FormClosing);
             this.Load += new System.EventHandler(this.Form_main_Load);
-            this.ResizeEnd += new System.EventHandler(this.Form_main_ResizeEnd);
             this.save_songs_btn.ResumeLayout(false);
             this.save_songs_btn.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logo_pic)).EndInit();
@@ -417,5 +428,6 @@ namespace misis_mp3_pleer
         private Timer timer1;
         private Button delete_button;
         private PictureBox labeL_picture;
+        private Button StatButton;
     }
 }

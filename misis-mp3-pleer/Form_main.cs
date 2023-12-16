@@ -6,20 +6,34 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.SQLite;
 using System.Drawing;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using VideoPlayerController;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Linq.Expressions;
 using System.IO;
+
 
 namespace misis_mp3_pleer
 {
     public partial class Form_main : Form
     {
+        public class Song
+        {
+            public string SongUrl { get; set; }
+            public string SongName { get; set; }
+            public int TimesPlayed { get; set; }
+            public Song(string songUrl, string songName, int timesPlayed = 0)
+            {
+                SongUrl = songUrl;
+                SongName = songName;
+                TimesPlayed = timesPlayed;  
+            }   
+            public Song()
+            {
+            }
+        }
         public SQLiteConnection conn { get; private set; }
         public static Form_main instance;
         public Label uid_label;
@@ -29,24 +43,21 @@ namespace misis_mp3_pleer
         private bool isRandom = false;
         private bool isLoop = false;
         private bool isSongsLoaded = false;
-        private List<string> files;
-        private List<string> paths;
-        /*private string[] load_paths;
-        private string[] load_files;*/
-
-        //public int variable;
+        public List<Song> songs_list;
+        
         public Form_main()
         {
             InitializeComponent();
             instance = this;
             uid_label = user_id_label;
             name_label_p = name_label;
+            songs_list= new List<Song>();
  
         }
 
         private void Form_main_Load(object sender, EventArgs e)
         {
-            
+            Console.WriteLine("Основная форма загружена");
             volume_bar.Value = (int) AudioManager.GetMasterVolume();
             label_100.Text = $"{volume_bar.Value}%";
             time_label.Text = "00:00";
@@ -58,8 +69,7 @@ namespace misis_mp3_pleer
             try
             {
                 //Console.WriteLine(counter);
-                paths = new List<string>();
-                files = new List<string>();
+                
                 SQLiteDataReader SQL = CMD2.ExecuteReader();
                 if (SQL.HasRows)
                 {
@@ -69,10 +79,11 @@ namespace misis_mp3_pleer
                         if ($"{SQL.GetInt32(0)}" == $"{user_id_int}")
                         {
                             
-                            Console.WriteLine($"{SQL.GetString(1)}" + " " + $"{SQL.GetString(2)}");                                                          
-                            playlist_list.Items.Add($"{SQL.GetString(2)}");
-                            files.Add($"{SQL.GetString(2)}");
-                            paths.Add($"{SQL.GetString(1)}");
+                            Console.WriteLine($"{SQL.GetString(1)}" + " " + $"{SQL.GetString(2)}");
+                            Song song = new Song(SQL.GetString(1), SQL.GetString(2), SQL.GetInt32(3));
+                            songs_list.Add(song);
+                            playlist_list.Items.Add(song.SongName);
+                            
                             
                         }
                     }
@@ -98,16 +109,8 @@ namespace misis_mp3_pleer
                 Console.WriteLine("ошибка");
 
             }
-            
-            
+            Console.WriteLine("Список песен сформирован");
         }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-
         private void pictureBox1_Click(object sender, EventArgs e)
         {
             if (isMusicPlaying == false) 
@@ -122,17 +125,6 @@ namespace misis_mp3_pleer
                 isMusicPlaying = false;
                 player.Ctlcontrols.pause();
             }
-            /*try
-            {
-                if (player.playState == WMPLib.WMPPlayState.wmppsPlaying == true)
-                {
-                    song_name_label.Text = $"Сейчас играет: {player.currentMedia.name}";
-                }                  
-            }
-            catch (System.NullReferenceException)
-            {
-                Console.WriteLine("ОШИБКА");
-            }*/
             
         }
 
@@ -141,14 +133,15 @@ namespace misis_mp3_pleer
             try
             {
                 labeL_picture.Image = Resources.disk_picture;
-                player.URL = paths[playlist_list.SelectedIndex];
+                player.URL = songs_list[playlist_list.SelectedIndex].SongUrl;
+                songs_list[playlist_list.SelectedIndex].TimesPlayed += 1;
                 player.Ctlcontrols.play();
                 pause_play.Image = Resources.pause;
                 isMusicPlaying = true;
                 song_name_label.Text = $"Сейчас играет: {player.currentMedia.name}";
                 try
                 {
-                    var file = TagLib.File.Create(paths[playlist_list.SelectedIndex]);
+                    var file = TagLib.File.Create(songs_list[playlist_list.SelectedIndex].SongUrl);
                     var bin = (byte[])(file.Tag.Pictures[0].Data.Data);
                     labeL_picture.Image = Image.FromStream(new MemoryStream(bin));
                 
@@ -276,7 +269,7 @@ namespace misis_mp3_pleer
                         }
                         else if ((playlist_list.SelectedIndex == playlist_list.Items.Count - 1) && (isLoop != true))
                         {
-                            player.URL = paths[0];
+                            player.URL = songs_list[0].SongUrl;
                             playlist_list.SelectedIndex = 0;
                             player.Ctlcontrols.play();
                             pause_play.Image = Resources.pause;
@@ -298,7 +291,7 @@ namespace misis_mp3_pleer
                     }
                     else if ((playlist_list.SelectedIndex == playlist_list.Items.Count) && (isLoop == false))
                     {                       
-                        player.URL = paths[0];
+                        player.URL = songs_list[0].SongUrl;
                         playlist_list.SelectedIndex = 0;
                         player.Ctlcontrols.play();
                         pause_play.Image = Resources.pause;
@@ -330,8 +323,11 @@ namespace misis_mp3_pleer
 
         }
 
+
+        // 
         private void button1_Click(object sender, EventArgs e)
         {
+            Console.WriteLine("Сохранение....");
             SQLiteCommand CMD = conn.CreateCommand();
             CMD.CommandText = "DELETE FROM files_urls";
             CMD.ExecuteNonQuery();
@@ -339,109 +335,49 @@ namespace misis_mp3_pleer
             {
                 string URL = (string) playlist_list.Items[i];
                 SQLiteCommand CMD2 = conn.CreateCommand(); 
-                CMD2.CommandText = $"insert into files_urls(USER_ID, SONG_URL, SHORT_NAME) values('{user_id_int}', '{paths[i]}', '{files[i]}')";
+                CMD2.CommandText = $"insert into files_urls(USER_ID, SONG_URL, SHORT_NAME, TIMES_PLAYED) values('{user_id_int}', '{songs_list[i].SongUrl}', '{songs_list[i].SongName}', '{songs_list[i].TimesPlayed}')";
                 CMD2.ExecuteNonQuery();
             }
 
         }
 
-        private void song_name_label_Click(object sender, EventArgs e)
-        {
-
-        }
-
+        // Изменение громкости
         private void volume_bar_Scroll(object sender, EventArgs e)
         {
             label_100.Text = $"{volume_bar.Value}%";
             VideoPlayerController.AudioManager.SetMasterVolume(volume_bar.Value);
         }
-
-        private void label_100_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Form_main_ResizeEnd(object sender, EventArgs e)
-        {
-            
-
-        }
-
-       
-
-        /*private void playhead_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (isPlayheadHolded == true)
-            {
-                Point MouseHook = new Point();
-                if (e.Button != MouseButtons.Left)
-                    MouseHook = e.Location;
-                Point izvr = new Point((Size)playhead_volume.Location - (Size)MouseHook + (Size)e.Location);
-                playhead_volume.Location = new Point(izvr.X, playhead_volume.Location.Y);
-            }
-        }*/
-
- 
+        // изменение времени проигрывания
         private void song_line_MouseDown(object sender, MouseEventArgs e)
         {
             player.Ctlcontrols.currentPosition = player.currentMedia.duration * e.X / song_line.Width;
         }
-
+        // очистка памяти при закрытии формы
         private void Form_main_FormClosing(object sender, FormClosingEventArgs e)
         {
             conn.Close();
             Console.WriteLine("соединение с бд разорвано");
             System.Windows.Forms.Application.ExitThread();
         }
-
+        // Удаление песен
         private void delete_button_Click(object sender, EventArgs e)
         {
             try
             {
-                string name_to_remove = files[playlist_list.SelectedIndex];
-                string url_to_remove = paths[playlist_list.SelectedIndex];
-                files.RemoveAt(playlist_list.SelectedIndex);
-                paths.RemoveAt(playlist_list.SelectedIndex);
+                string name_to_remove = songs_list[playlist_list.SelectedIndex].SongName;
+                string url_to_remove = songs_list[playlist_list.SelectedIndex].SongUrl;
+                songs_list.RemoveAt(playlist_list.SelectedIndex);
                 playlist_list.Items.RemoveAt(playlist_list.SelectedIndex);
-                /*Console.WriteLine(name_to_remove);
-                Console.WriteLine(url_to_remove);
-                Console.WriteLine(user_id_int);*/
                 SQLiteCommand CMD = conn.CreateCommand();
                 CMD.CommandText = $"DELETE FROM files_urls WHERE USER_ID = '{user_id_int}' AND SONG_URL = '{url_to_remove}' AND SHORT_NAME = '{name_to_remove}'";
-                CMD.ExecuteNonQuery();
-
-
-
-                
+                CMD.ExecuteNonQuery();     
             }
             catch (System.ArgumentOutOfRangeException)
             {
                 Console.WriteLine(playlist_list.SelectedIndex + " " + "ошибка");
             }
-            
-            
-            /*SQLiteCommand CMD = conn.CreateCommand();            
-            CMD.CommandText = $"select * from files_urls";
-            SQLiteDataReader SQL = CMD.ExecuteReader();
-            if (SQL.HasRows)
-            {
-                while (SQL.Read())
-                {
-
-                    if (($"{SQL.GetString(1)}" == login.ToUpper()) && (password1.ToUpper() == $"{SQL.GetString(2)}"))
-                    {
-                        user_name = SQL.GetString(1);
-                        user_id = SQL.GetInt32(0);
-                        Console.WriteLine(user_id);
-
-                    }
-
-
-                }
-            }*/
         }
-
-
+        // Добавление песен
         private void Chose_songs_btn_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
@@ -449,15 +385,14 @@ namespace misis_mp3_pleer
             ofd.Filter = "Mp3 Files|*.mp3";
             if(ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK )
             {
-                if (isSongsLoaded = false)
+                if (isSongsLoaded == false)
                 {
-                    var list_ofd = new List<string>(ofd.FileNames);                
-                    files = UrlsNormalizer(list_ofd);
-                    paths = list_ofd;
-                    for (int i = 0; i < files.Count(); i++)
+                    var list_ofd = new List<string>(ofd.FileNames);
+                    for (int i = 0; i < list_ofd.Count(); i++)
                     {
-                        playlist_list.Items.Add(files[i]);
-                        Console.WriteLine(files[i]);
+                        Song song = new Song(list_ofd[i], UrlNormalizer(list_ofd[i]));
+                        songs_list.Add(song);
+                        playlist_list.Items.Add(songs_list[i].SongName);
 
 
                     }
@@ -469,28 +404,30 @@ namespace misis_mp3_pleer
                         var list_ofd = new List<string>(ofd.FileNames);
                         playlist_list.Items.Clear();
                         Console.WriteLine("Операция с загруженными песнями");
-                        var sub_files = UrlsNormalizer(list_ofd);
-                        var sub_paths = list_ofd;
-                        Console.WriteLine("файлы соеденяются");
-                        files = ConnectLists(files, sub_files);
-                        Console.WriteLine("пути соеденяются");
-                        paths = ConnectLists(paths, sub_paths);
-                        for (int i = 0; i < files.Count(); i++)
+                        List<Song> sub_song_list = new List<Song>();
+                        for (int i = 0; i < list_ofd.Count(); i++)
                         {
-                            playlist_list.Items.Add(files[i]);
+                            Song sub_song = new Song(list_ofd[i], UrlNormalizer(list_ofd[i]));
+                            sub_song_list.Add(sub_song);
+                        }
+                        Console.WriteLine("Cоединение списков");
+                        songs_list = ConnectLists(sub_song_list, songs_list);
+                        for (int i = 0; i < songs_list.Count(); i++)
+                        {
+                            playlist_list.Items.Add(songs_list[i].SongName);
                         }
                     }                    
                     catch (System.ArgumentNullException)
                     {
                         var list_ofd = new List<string>(ofd.FileNames);
-                        files = UrlsNormalizer(list_ofd);
-                        paths = list_ofd;
-                        for (int i = 0; i < files.Count(); i++)
+                        for (int i = 0; i < list_ofd.Count(); i++)
                         {
-                            playlist_list.Items.Add(files[i]);
-                            Console.WriteLine(files[i]);
+                            Song sub_song = new Song(list_ofd[i], UrlNormalizer(list_ofd[i]));
+                            //songs_list.Add(sub_song);
+                            songs_list.Clear();
+                            Console.WriteLine("dasdad");
 
-
+                            playlist_list.Items.Add(songs_list[i].SongName);
                         }
                     }
                 }
@@ -498,6 +435,11 @@ namespace misis_mp3_pleer
              
                 
             }
+        }
+        // Технические функции
+        private string mp3Normalizer(string stroke) 
+        {
+            return stroke.Substring(0, stroke.Length - 3);
         }
         private void Show(List<string> list)
         {
@@ -508,36 +450,33 @@ namespace misis_mp3_pleer
             }
             Console.WriteLine(answ);
         }
-        private List<string> UrlsNormalizer(List<string> array)
+        private string UrlNormalizer(string stroke)
         {
             var answ = new List<string>();
-            for (int i = 0; i < array.Count(); i++)
-            {
-                string[] add_string = array[i].Split('\\');
-                answ.Add(add_string[add_string.Length - 1]);
-            }
-            return answ;
+            string[] add_stroke = stroke.Split('\\');
+            return mp3Normalizer(add_stroke[add_stroke.Length - 1]);
         }
-        private List<string> ConnectLists(List<string> array1, List<string> array2)
+        private List<T> ConnectLists<T>(List<T> array1, List<T> array2)
         {
             int len = array1.Count() + array2.Count();
             Console.WriteLine(len);
-            var result = new List<string>();
-            for (int i = 0; i < array1.Count() ; i++) 
+            var result = new List<T>();
+            for (int i = 0; i < array1.Count; i++)
             {
                 result.Add(array1[i]);
             }
-            for (int a = 0; a < array2.Count(); a++)
+            for (int a = 0; a < array2.Count; a++)
             {
                 result.Add(array2[a]);
             }
-            Show(result);
             return result;
         }
 
-        private void save_songs_btn_Paint(object sender, PaintEventArgs e)
+        private void StatButton_Click(object sender, EventArgs e)
         {
-
+            Form_statistics stat_form = new Form_statistics();
+            stat_form.main_form = this;
+            stat_form.Show();
         }
     }
 }

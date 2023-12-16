@@ -62,7 +62,6 @@ namespace misis_mp3_pleer
             this.Label_top.TabIndex = 2;
             this.Label_top.Text = "Регистрация";
             this.Label_top.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.Label_top.Click += new System.EventHandler(this.Label_top_Click);
             // 
             // password_box_1
             // 
@@ -157,9 +156,10 @@ namespace misis_mp3_pleer
             this.mistake_reg.Name = "mistake_reg";
             this.mistake_reg.Size = new System.Drawing.Size(1142, 47);
             this.mistake_reg.TabIndex = 17;
-            this.mistake_reg.Text = "Пароли введены неверно!";
+            this.mistake_reg.Text = "Некорректные пароли или пользователь уже существует!";
             this.mistake_reg.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.mistake_reg.Visible = false;
+            this.mistake_reg.Click += new System.EventHandler(this.mistake_reg_Click);
             // 
             // label3
             // 

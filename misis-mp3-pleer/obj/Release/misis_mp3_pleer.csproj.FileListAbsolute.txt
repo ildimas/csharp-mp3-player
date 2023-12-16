@@ -13,7 +13,6 @@ C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\Interop.
 C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\AxInterop.WMPLib.dll
 C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\misis_mp3_pleer.csproj.ResolveComReference.cache
 C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\misis_mp3_pleer.Form_login.resources
-C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\misis_mp3_pleer.Form_main.resources
 C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\misis_mp3_pleer.Form_register.resources
 C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\misis_mp3_pleer.Properties.Resources.resources
 C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\misis_mp3_pleer.csproj.GenerateResource.cache
@@ -22,3 +21,5 @@ C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\misis_mp
 C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\misis_mp3_pleer.csproj.CopyComplete
 C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\misis-mp3-pleer.exe
 C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\misis-mp3-pleer.pdb
+C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\misis_mp3_pleer.Form_main.resources
+C:\Users\spoyi\source\repos\misis-mp3-pleer\misis-mp3-pleer\obj\Release\misis_mp3_pleer.Form_statistics.resources

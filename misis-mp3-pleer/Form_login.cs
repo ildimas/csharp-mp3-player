@@ -16,34 +16,35 @@ namespace misis_mp3_pleer
 {
     public partial class Form_login : Form
     {
+        // Инициализация системных переменных
         public static Form_login instance;
         public static bool isFirstDB = true;
         private SQLiteConnection conn;
         
+        // Инициализация формы логина пользователя
         public Form_login()       
         {
             InitializeComponent();
             instance = this;
         }
         
-
-        private void Label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
+        // Функция выполняемая при загрузке формы 
         private void Form1_Load(object sender, EventArgs e)
         {
+            Console.WriteLine("Форма логина загружена");
+            // Проверка на наличие файла  sqlite3, и его создание если файл отсутствует 
             if (File.Exists("./database.sqlite3"))
             {
+                // Подключение к базе данных (уже существующей)
                 conn = new SQLiteConnection("Data Source=database.sqlite3; Version=3");
                 conn.Open();
-                isFirstDB= false;
+                isFirstDB = false;
                 Console.WriteLine("файл существует");
                 
             }
             else
             {
+                // Подключение к базе данных и разметка таблци в ней с помощью SQL запросов 
                 SQLiteConnection.CreateFile("database.sqlite3");
                 conn = new SQLiteConnection("Data Source=database.sqlite3; Version=3");
                 conn.Open();
@@ -51,7 +52,7 @@ namespace misis_mp3_pleer
                 CMD.CommandText = "CREATE TABLE passwords_and_users(id INTEGER PRIMARY KEY, USER_NAME VARCHAR, PASSWORD VARCHAR)";
                 CMD.ExecuteNonQuery();
                 SQLiteCommand CMD2 = conn.CreateCommand();
-                CMD2.CommandText = "CREATE TABLE files_urls (USER_ID INT, SONG_URL VARCHAR, SHORT_NAME VARCHAR DEFAULT NONE)";
+                CMD2.CommandText = "CREATE TABLE files_urls (USER_ID INT, SONG_URL VARCHAR, SHORT_NAME VARCHAR DEFAULT NONE, TIMES_PLAYED INT DEFAULT 0)";
                 CMD2.ExecuteNonQuery();
 
 
@@ -60,29 +61,9 @@ namespace misis_mp3_pleer
              
             }
             
+        
         }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void pictureBox1_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-
-        private void pictureBox1_Click_2(object sender, EventArgs e)
-        {
-
-        }
-
+        //! Изменение формата кнопки при наведении курсора мыши на нее 
         private void Button_enter_MouseEnter(object sender, EventArgs e)
         {
             Button_enter.Left -= 5;
@@ -114,10 +95,12 @@ namespace misis_mp3_pleer
             button_registration.Width -= 10;
             button_registration.ForeColor = Color.White;
         }
-
+        //!
+        
+        //Функционал кнопки авторизации
+        // Логин пользователя или выдача контролируемой ошибки если пользователь не найден
         private void Button_enter_Click(object sender, EventArgs e)
         {
-            
             String user_login = login_box.Text;
             String user_password = password_box.Text;
             bool is_exist = false;
@@ -134,6 +117,7 @@ namespace misis_mp3_pleer
                     {
                         
                         if (($"{SQL.GetString(1)}" == user_login.ToUpper()) && (user_password.ToUpper() == $"{SQL.GetString(2)}"))
+         
                         {
                             id = SQL.GetInt32(0);
                             name = SQL.GetString(1);
@@ -149,7 +133,7 @@ namespace misis_mp3_pleer
             catch (System.Data.SQLite.SQLiteException)
             {
                 Console.WriteLine("ошибка");
-        
+            // Вывод статуса логина пользователя ошибка/успех
             }
             if (is_exist == true) {
                 this.sucsess_reg.Visible = true;
@@ -174,21 +158,21 @@ namespace misis_mp3_pleer
             
             
         }
-
+        // Функция останавливающая форму логина и запускающая форму регистрации
         private void button_registration_Click(object sender, EventArgs e)
         {
             this.Hide();
             Form_register reg_form = new Form_register();
             reg_form.Show();
         }
-
+        // Функция очищающая системные переменные при закрытии формы 
         private void Form_login_FormClosing(object sender, FormClosingEventArgs e)
         {
             
             conn.Close();
             System.Windows.Forms.Application.ExitThread();
         }
-
+        // Функция отвечающая за исчезновение dummy текста при наведении курсора на поле логина 
         private void login_box_MouseEnter(object sender, EventArgs e)
         {
             if (login_box.Text == "Логин:")
@@ -198,7 +182,7 @@ namespace misis_mp3_pleer
             
 
         }
-
+        // Функция отвечающая за исчезновение dummy текста при наведении курсора на поле пароля
         private void password_box_MouseEnter(object sender, EventArgs e)
         {
             if (password_box.Text == "example")
