@@ -29,7 +29,7 @@ namespace misis_mp3_pleer
         }
         
         // Функция выполняемая при загрузке формы 
-        private void Form1_Load(object sender, EventArgs e)
+        public void Form1_Load(object sender, EventArgs e)
         {
             Console.WriteLine("Форма логина загружена");
             // Проверка на наличие файла  sqlite3, и его создание если файл отсутствует 

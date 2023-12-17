@@ -15,25 +15,65 @@ namespace misis_mp3_pleer
 {
     public partial class Form_statistics : Form
     {
+        public int length = 0;
+        public int range = 0;
         public Form_main main_form;
         public Form_statistics()
         {
             InitializeComponent();
-            
-        }
+            chart1.Titles.Add("Статистика количества прослушиваний");
 
-        private void Form_statistics_Load(object sender, EventArgs e)
+        }
+        private void chart_population(int range)
         {
             this.chart1.Series.Clear();
-            chart1.Titles.Add("Статистика количества прослушиваний");
             var songs_list = ((Form_main)main_form).songs_list;
-            for (int i = 0; i < songs_list.Count(); i++)
+            length = songs_list.Count();
+            int rr = range;
+            for (int i = range; i < rr + 12; i++)
             {
-                chart1.Series.Add(songs_list[i].SongName);
-                chart1.Series[songs_list[i].SongName].Points.Add(songs_list[i].TimesPlayed);
+                try
+                {
+                    chart1.Series.Add(songs_list[i].SongName);
+                    chart1.Series[songs_list[i].SongName].Points.Add(songs_list[i].TimesPlayed);
+                }
+                catch 
+                {
+                    Console.WriteLine("Конец списка");
+                    break;
+                }
+
             }
-            
-        
+        }
+        private void Form_statistics_Load(object sender, EventArgs e)
+        {
+            chart_population(range);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (this.range <= 0)
+            {
+                Console.WriteLine("Конец списка -");
+            }
+            else
+            {
+                this.range -= 12;
+                chart_population(this.range);
+            }
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (length < range + 12)
+            {
+                Console.WriteLine("Конец списка +");
+            }
+            else
+            {
+                this.range += 12;
+                chart_population(this.range);
+            }
+            Console.WriteLine(range);
         }
     }
 }
